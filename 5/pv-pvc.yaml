@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-volume
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/test-volume
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc
+spec:
+  volumeName: test-volume
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-exchange
+  labels:
+    app: data-exchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app1: busybox
+      app2: multitool
+  template:
+    metadata:
+      labels:
+        app1: busybox
+        app2: multitool
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: ["sh", "-c", "while true; do echo \"test $(date '+%Y-%m-%d %H:%M:%S')\" >> /output/test.txt && sleep 5; done"]
+        volumeMounts:
+        - name: shared-data
+          mountPath: /output
+      - name: multitool
+        image: wbitt/network-multitool:3.24
+        volumeMounts:
+        - name: shared-data
+          mountPath: /input
+      volumes:
+      - name: shared-data
+        persistentVolumeClaim:
+          claimName: test-pvc
