@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels:
+    app: {{ .Release.Name }}-backend
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-backend
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backend
+    spec:
+      containers:
+        - name: multitool
+          image: {{ .Values.backend.image }}:{{ .Values.backend.version }}
+          env:
+          - name: HTTP_PORT
+            value: "{{ .Values.backend.httpPort }}"
+          ports:
+          - containerPort: {{ .Values.backend.httpPort }}

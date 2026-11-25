@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-backend
+spec:
+  selector:
+      app: {{ .Release.Name }}-backend
+  ports:
+    - name: multitool
+      protocol: TCP
+      port: {{ .Values.backend.servicePort }}
+      targetPort: {{ .Values.backend.httpPort }}
+    

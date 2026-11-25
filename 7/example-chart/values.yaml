@@ -1,0 +1,13 @@
+frontend:
+  image: nginx
+  version: 1.30.6
+  port: 80
+  servicePort: 80
+  replicas: 1
+
+backend:
+  image: wbitt/network-multitool
+  version: 3.24
+  httpPort: 8080
+  servicePort: 80
+  replicas: 1
